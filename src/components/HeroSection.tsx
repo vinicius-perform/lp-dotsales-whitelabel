@@ -22,7 +22,7 @@ export const HeroSection: React.FC = () => {
               </Badge>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black text-brand-dark tracking-tight leading-[1.12]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-extrabold text-brand-dark tracking-tighter-hero leading-[1.08]">
               Sua agência já tem clientes. Agora pode ter{' '}
               <span className="text-brand-primary underline decoration-brand-light decoration-4 underline-offset-4">
                 seu próprio CRM e uma nova receita recorrente.

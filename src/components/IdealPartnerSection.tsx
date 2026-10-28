@@ -26,7 +26,7 @@ export const IdealPartnerSection: React.FC = () => {
             <Badge variant="pale" className="mb-4">
               PARA AGÊNCIAS QUE QUEREM CRESCER
             </Badge>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-brand-dark tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-dark tracking-tighter-title leading-title-section">
               Essa oportunidade faz sentido para sua agência se:
             </h2>
           </div>

@@ -25,7 +25,7 @@ export const FinalCTA: React.FC = () => {
           OPORTUNIDADE DE ESCALA
         </Badge>
 
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-brand-dark tracking-tight leading-tight max-w-3xl mx-auto">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-dark tracking-tighter-title leading-[1.1] max-w-3xl mx-auto">
           Seus clientes já precisam de um CRM.{' '}
           <span className="text-brand-primary underline decoration-brand-light decoration-4 underline-offset-4">
             Por que essa receita ainda não faz parte da sua agência?

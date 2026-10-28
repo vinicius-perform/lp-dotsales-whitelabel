@@ -268,7 +268,7 @@ export const QualificationForm: React.FC = () => {
       {step === 1 && (
         <form onSubmit={handleNextStep} className="space-y-4">
           <div>
-            <h3 className="text-xl sm:text-2xl font-extrabold text-brand-dark tracking-tight">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-brand-dark tracking-tight-card leading-snug">
               Vamos preparar sua apresentação exclusiva.
             </h3>
             <p className="text-sm text-brand-muted mt-1 leading-snug">
@@ -398,7 +398,7 @@ export const QualificationForm: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-xl sm:text-2xl font-extrabold text-brand-dark tracking-tight">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-brand-dark tracking-tight-card leading-snug">
               Vamos entender o potencial da sua agência?
             </h3>
             <p className="text-sm text-brand-muted mt-1 leading-snug">

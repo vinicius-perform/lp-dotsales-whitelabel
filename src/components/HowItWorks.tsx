@@ -37,7 +37,7 @@ export const HowItWorks: React.FC = () => {
           <Badge variant="pale" className="mb-4">
             SIMPLES DE COMEÇAR
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-brand-dark tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-[42px] font-extrabold text-brand-dark tracking-tighter-title leading-title-section">
             Seu próprio CRM em três passos.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-brand-muted">

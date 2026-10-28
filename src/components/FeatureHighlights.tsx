@@ -58,7 +58,7 @@ export const FeatureHighlights: React.FC = () => {
           <Badge variant="pale" className="mb-3">
             RECURSOS DE PRODUTO
           </Badge>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-brand-dark tracking-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-dark tracking-tighter-title leading-title-section">
             Tecnologia corporativa pronta para sua operação
           </h2>
           <p className="mt-3 text-sm sm:text-base text-brand-muted">

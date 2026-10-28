@@ -50,7 +50,7 @@ export const BenefitsSection: React.FC = () => {
           <Badge variant="pale" className="mb-4">
             VANTAGEM ESTRATÉGICA
           </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-brand-dark tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-[42px] font-extrabold text-brand-dark tracking-tighter-title leading-title-section">
             Mais receita para sua agência.{' '}
             <span className="text-brand-primary">Mais controle sobre os resultados dos seus clientes.</span>
           </h2>

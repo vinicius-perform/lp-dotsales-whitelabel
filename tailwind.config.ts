@@ -22,7 +22,17 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "Inter", "Geist", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "Geist Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+      },
+      letterSpacing: {
+        'tighter-hero': '-0.035em',
+        'tighter-title': '-0.03em',
+        'tight-card': '-0.02em',
+      },
+      lineHeight: {
+        'title-hero': '1.1',
+        'title-section': '1.15',
       },
       boxShadow: {
         card: "0 4px 20px -2px rgba(12, 12, 9, 0.05), 0 2px 6px -1px rgba(12, 12, 9, 0.03)",
