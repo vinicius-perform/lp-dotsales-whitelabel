@@ -52,11 +52,15 @@ export async function POST(request: Request) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(leadPayload),
+          redirect: 'follow',
         });
 
         if (sheetResponse.ok) {
           sheetStatus = 'synced';
           console.log('[Google Sheets]: Dados sincronizados com sucesso na planilha!');
+        } else if (sheetResponse.status === 401) {
+          sheetStatus = 'error_auth';
+          console.warn('[Google Sheets]: Retornou 401. No Apps Script, configure "Quem pode acessar" como "Qualquer pessoa".');
         } else {
           sheetStatus = 'error_remote';
           console.warn('[Google Sheets]: Webhook retornou status:', sheetResponse.status);
