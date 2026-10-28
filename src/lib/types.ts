@@ -10,15 +10,29 @@ export interface QualificationData {
   mainService: string;
   useCrm: string;
 
-  // Tracking
+  // Meta Ads IDs & Tracking
+  campaign_id?: string;
+  adset_id?: string;
+  ad_id?: string;
+  campaign_name?: string;
+  adset_name?: string;
+  ad_name?: string;
+  placement?: string;
+  site_source_name?: string;
+
+  // UTM Parameters
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
   utm_content?: string;
   utm_term?: string;
+
+  // Meta Clicks & Cookies
   fbclid?: string;
   fbc?: string;
   fbp?: string;
+
+  // Meta Context
   pageUrl?: string;
   submittedAt?: string;
 }
