@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --color-primary: #007A55;
+  --color-primary-hover: #006344;
+  --color-mint: #DCEDE8;
+  --color-pale: #E7F4EE;
+  --color-dark: #0C0C09;
+  --color-muted: #68736F;
+  --color-border: #E7EAE7;
+  --color-offwhite: #F9F9F7;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+body {
+  background-color: #FFFFFF;
+  color: #0C0C09;
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F9F9F7;
+}
+::-webkit-scrollbar-thumb {
+  background: #C1F4C7;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #007A55;
+}
+
+/* Selection */
+::selection {
+  background: #C1F4C7;
+  color: #007A55;
+}
+
+/* Utilities */
+.text-balance {
+  text-wrap: balance;
+}
+
+@layer utilities {
+  .hero-gradient {
+    background: linear-gradient(110deg, #DCEDE8 0%, #F0F7F5 45%, #FFFFFF 85%);
+  }
+  
+  .card-hover-effect {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .card-hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px -4px rgba(0, 122, 85, 0.08), 0 4px 12px -2px rgba(12, 12, 9, 0.04);
+    border-color: #C1F4C7;
+  }
+}
