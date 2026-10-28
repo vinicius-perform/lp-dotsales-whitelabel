@@ -53,18 +53,31 @@ export const HeroSection: React.FC = () => {
 
             {/* Micro-proof badge */}
             <div className="pt-4 flex flex-wrap items-center gap-4 sm:gap-6 border-t border-brand-border/60">
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-brand-muted">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-brand-muted font-medium">
                 <TrendingUp className="w-4 h-4 text-brand-primary shrink-0" />
-                <span>+ Margem por cliente na carteira</span>
+                <span>+ Margem por cliente</span>
               </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-brand-muted">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-brand-muted font-medium">
                 <Zap className="w-4 h-4 text-brand-primary shrink-0" />
                 <span>Tecnologia pronta, sem código</span>
               </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-brand-muted">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-brand-muted font-medium">
                 <ShieldCheck className="w-4 h-4 text-brand-primary shrink-0" />
                 <span>Infraestrutura dot.Sales</span>
               </div>
+            </div>
+
+            {/* Official Meta Tech Provider endorsement */}
+            <div className="pt-1 flex items-center gap-3 bg-white/70 backdrop-blur-xs p-2.5 rounded-xl border border-brand-border/70 max-w-lg">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/assets/meta-tech-provider.png"
+                alt="Meta Tech Provider"
+                className="h-6 w-auto object-contain shrink-0"
+              />
+              <span className="text-xs text-brand-muted border-l border-brand-border/80 pl-2.5 leading-snug">
+                Integração nativa oficial homologada com <strong className="text-brand-dark font-semibold">Meta Ads</strong> e <strong className="text-brand-dark font-semibold">WhatsApp Cloud API</strong>
+              </span>
             </div>
 
           </div>

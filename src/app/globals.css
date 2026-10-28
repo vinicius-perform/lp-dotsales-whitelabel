@@ -7,10 +7,10 @@
 :root {
   --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-geist-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --color-primary: #007A55;
-  --color-primary-hover: #006344;
-  --color-mint: #DCEDE8;
-  --color-pale: #E7F4EE;
+  --color-primary: #007956;
+  --color-primary-hover: #005f46;
+  --color-mint: #d0fae5;
+  --color-pale: #ecfdf5;
   --color-dark: #0C0C09;
   --color-muted: #68736F;
   --color-border: #E7EAE7;
@@ -44,13 +44,13 @@ body {
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #007A55;
+  background: #007956;
 }
 
 /* Selection */
 ::selection {
-  background: #C1F4C7;
-  color: #007A55;
+  background: #d0fae5;
+  color: #007956;
 }
 
 /* Typography Enhancements for dot.Sales Design System */
@@ -104,7 +104,7 @@ code, pre, .font-mono, [data-mono="true"] {
   
   .card-hover-effect:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px -4px rgba(0, 122, 85, 0.08), 0 4px 12px -2px rgba(12, 12, 9, 0.04);
-    border-color: #C1F4C7;
+    box-shadow: 0 12px 32px -4px rgba(0, 121, 86, 0.08), 0 4px 12px -2px rgba(12, 12, 9, 0.04);
+    border-color: #d0fae5;
   }
 }
