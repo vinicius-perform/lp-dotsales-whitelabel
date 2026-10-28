@@ -13,24 +13,29 @@ export const DotSalesLogo: React.FC<DotSalesLogoProps> = ({
   whiteLabelBadge = true,
 }) => {
   const sizeMap = {
-    sm: { height: 24, text: 'text-xl', badge: 'text-[10px] px-2 py-0.5' },
-    md: { height: 32, text: 'text-2xl', badge: 'text-xs px-2.5 py-0.5' },
-    lg: { height: 40, text: 'text-3xl', badge: 'text-xs px-3 py-1' },
+    sm: { width: 105, height: 31, badge: 'text-[10px] px-2 py-0.5' },
+    md: { width: 135, height: 40, badge: 'text-xs px-2.5 py-0.5' },
+    lg: { width: 165, height: 49, badge: 'text-xs px-3 py-1' },
   };
 
   const current = sizeMap[size];
 
   return (
     <div className={`inline-flex items-center gap-3 select-none ${className}`}>
-      {/* Brand typographic mark */}
-      <div className="flex items-center tracking-tight font-extrabold text-brand-dark">
-        <span className="text-brand-primary">dot</span>
-        <span className="text-brand-primary text-3xl leading-none">.</span>
-        <span className="text-brand-dark font-black tracking-tighter">Sales</span>
+      {/* Official dot.Sales Logo */}
+      <div className="relative flex items-center">
+        <Image
+          src="/logo.png"
+          alt="dot.Sales Logo"
+          width={current.width}
+          height={current.height}
+          priority
+          className="object-contain w-auto h-auto max-h-[40px]"
+        />
       </div>
 
       {whiteLabelBadge && (
-        <span className={`bg-brand-pale text-brand-primary font-bold rounded-full border border-brand-mint uppercase tracking-wider ${current.badge}`}>
+        <span className={`bg-brand-pale text-brand-primary font-bold rounded-full border border-brand-mint uppercase tracking-wider shrink-0 ${current.badge}`}>
           White Label
         </span>
       )}
