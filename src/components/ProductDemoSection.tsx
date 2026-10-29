@@ -36,11 +36,13 @@ export const ProductDemoSection: React.FC = () => {
             TECNOLOGIA REAL HOMOLOGADA
           </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-[42px] font-extrabold text-brand-dark tracking-tighter-title leading-title-section">
-            Sua agência gera os leads. Agora também pode{' '}
-            <span className="text-brand-primary">acompanhar o que acontece até a venda.</span>
+            O Meta mostra quem clicou.{' '}
+            <span className="text-brand-primary">
+              A dot.Sales mostra o que aconteceu depois.
+            </span>
           </h2>
-          <p className="mt-5 text-base sm:text-lg text-brand-muted leading-relaxed font-normal">
-            A infraestrutura oficial da dot.Sales conecta o clique exato do anúncio no Meta Ads até a confirmação do pedido, dando à sua agência comprovação cirúrgica de ROI e um CRM completo com a sua marca.
+          <p className="mt-5 text-base sm:text-lg text-brand-muted leading-relaxed font-normal max-w-2xl mx-auto">
+            Do primeiro clique ao fechamento, conecte Meta Ads, conversas e resultados comerciais para saber exatamente de onde vem cada venda.
           </p>
         </div>
 
