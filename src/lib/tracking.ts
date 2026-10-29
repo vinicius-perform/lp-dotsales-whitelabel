@@ -84,6 +84,7 @@ export function getTrackingParams(): Record<string, string> {
   } catch (e) {}
 
   params['pageUrl'] = window.location.href;
+  params['referrer'] = document.referrer || '';
 
   return params;
 }

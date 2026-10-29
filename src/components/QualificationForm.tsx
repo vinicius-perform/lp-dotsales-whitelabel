@@ -16,6 +16,63 @@ import { Button } from './ui/Button';
 import { getTrackingParams, trackEvent } from '@/lib/tracking';
 import { QualificationData } from '@/lib/types';
 
+// Helper para normalizar o Instagram da agência (aceita @user, user e URLs completas)
+const normalizeInstagram = (value: string): string => {
+  let val = String(value || '').trim();
+  if (!val) return '';
+
+  // Se o usuário colou uma URL completa do perfil (ex: https://instagram.com/nomedaagencia ou instagram.com/nomedaagencia?igsh=...)
+  if (val.includes('instagram.com/')) {
+    try {
+      const parts = val.split('instagram.com/');
+      if (parts[1]) {
+        // Extrai o identificador antes de query params (?), barras (/) ou hashtags (#)
+        val = parts[1].split('/')[0].split('?')[0].split('#')[0];
+      }
+    } catch (e) {
+      // fallback silencioso
+    }
+  }
+
+  // Remove qualquer @ duplicado no início e espaços residuais
+  val = val.replace(/^@+/, '').trim();
+
+  if (!val) return '';
+  return `@${val}`;
+};
+
+// Máscara brasileira inteligente para celular e fixo
+// Suporta digitação progressiva, colagem com/sem DDI +55 e autofill do navegador/SO
+const mascaraWhatsApp = (rawVal: string): string => {
+  let raw = String(rawVal || '').trim();
+  if (!raw) return '';
+
+  // Se veio com DDI +55 (frequente em autofill do Google / iOS / WhatsApp)
+  if (raw.startsWith('+55')) {
+    raw = raw.slice(3).trim();
+  }
+
+  let digits = raw.replace(/\D/g, '');
+
+  // Se o usuário colou 12 ou 13 dígitos começando com 55 (ex: 5585999999999)
+  if (digits.startsWith('55') && (digits.length === 12 || digits.length === 13)) {
+    digits = digits.slice(2);
+  }
+
+  // Limita ao máximo de 11 dígitos (DDD + 9 dígitos de celular)
+  digits = digits.slice(0, 11);
+
+  if (digits.length === 0) return '';
+  if (digits.length <= 2) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) {
+    // Formato fixo ou em digitação: (DD) 9999-9999
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+  // Formato celular padrão nacional: (DD) 99999-9999
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+};
+
 export const QualificationForm: React.FC = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,30 +95,7 @@ export const QualificationForm: React.FC = () => {
     trackEvent('ViewContent', { content_name: 'Qualification Form' });
   }, []);
 
-  // Máscara brasileira para celular
-  const mascaraWhatsApp = (valor: string) => {
-    let n = String(valor).replace(/\D/g, '').slice(0, 11);
-
-    if (n.length === 0) return '';
-
-    if (n.length <= 2) {
-      return '(' + n;
-    }
-
-    if (n.length <= 7) {
-      return '(' + n.slice(0, 2) + ') ' + n.slice(2);
-    }
-
-    return (
-      '(' +
-      n.slice(0, 2) +
-      ') ' +
-      n.slice(2, 7) +
-      '-' +
-      n.slice(7, 11)
-    );
-  };
-
+  // Manipulação inteligente de WhatsApp
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = mascaraWhatsApp(e.target.value);
     setFormData((prev) => ({ ...prev, whatsapp: formatted }));
@@ -70,15 +104,32 @@ export const QualificationForm: React.FC = () => {
     }
   };
 
-  // Format Instagram handle
+  const handlePhoneBlur = () => {
+    if (formData.whatsapp) {
+      const formatted = mascaraWhatsApp(formData.whatsapp);
+      setFormData((prev) => ({ ...prev, whatsapp: formatted }));
+    }
+  };
+
+  // Manipulação inteligente do Instagram
   const handleInstagramChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.trim();
-    if (value && !value.startsWith('@') && !value.startsWith('http')) {
+    let value = e.target.value;
+    // Se colou URL inteira, normaliza na hora para feedback visual imediato
+    if (value.includes('instagram.com/')) {
+      value = normalizeInstagram(value);
+    } else if (value && !value.startsWith('@') && !value.startsWith('http')) {
       value = `@${value}`;
     }
     setFormData((prev) => ({ ...prev, instagram: value }));
     if (errors.instagram) {
       setErrors((prev) => ({ ...prev, instagram: '' }));
+    }
+  };
+
+  const handleInstagramBlur = () => {
+    if (formData.instagram) {
+      const normalized = normalizeInstagram(formData.instagram);
+      setFormData((prev) => ({ ...prev, instagram: normalized }));
     }
   };
 
@@ -89,32 +140,65 @@ export const QualificationForm: React.FC = () => {
     }
   };
 
-  // Validate Step 1: Contact details
-  const validateStep1 = () => {
+  // Transição da Etapa 1 para Etapa 2 com sincronização robusta de Autofill
+  const handleNextStep = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Fallback de sincronização DOM -> React para In-App Browsers (Instagram/Facebook)
+    // que preenchem os inputs simultaneamente sem disparar eventos React granulares
+    const formEl = e.currentTarget;
+    const nameInput = formEl.elements.namedItem('name') as HTMLInputElement | null;
+    const instaInput = formEl.elements.namedItem('agencyInstagram') as HTMLInputElement | null;
+    const telInput = formEl.elements.namedItem('tel') as HTMLInputElement | null;
+    const emailInput = formEl.elements.namedItem('email') as HTMLInputElement | null;
+
+    const currentFullName = (nameInput?.value ?? formData.fullName).trim();
+    const currentInsta = normalizeInstagram(instaInput?.value ?? formData.instagram);
+    const currentPhone = mascaraWhatsApp(telInput?.value ?? formData.whatsapp);
+    const currentEmail = (emailInput?.value ?? formData.email).trim();
+
+    // Sincroniza o estado do React com o conteúdo real dos campos
+    setFormData((prev) => ({
+      ...prev,
+      fullName: currentFullName,
+      instagram: currentInsta,
+      whatsapp: currentPhone,
+      email: currentEmail,
+    }));
+
+    // Validação estrita dos dados da Etapa 1
     const newErrors: Record<string, string> = {};
-    if (!formData.fullName.trim() || formData.fullName.trim().length < 3) {
+    if (!currentFullName || currentFullName.length < 3) {
       newErrors.fullName = 'Informe seu nome completo.';
     }
 
-    if (!formData.instagram.trim() || formData.instagram.trim().length < 2) {
+    if (!currentInsta || currentInsta.length < 2) {
       newErrors.instagram = 'Informe o Instagram da sua agência (ex: @suaagencia).';
     }
 
-    const cleanPhone = formData.whatsapp.replace(/\D/g, '');
-    if (cleanPhone.length < 10 || cleanPhone.length > 11 || !formData.whatsapp.includes('-')) {
+    const cleanPhone = currentPhone.replace(/\D/g, '');
+    if (cleanPhone.length < 10 || cleanPhone.length > 11) {
       newErrors.whatsapp = 'Informe DDD e celular: (85) 99999-9999';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email.trim())) {
+    if (!emailRegex.test(currentEmail)) {
       newErrors.email = 'Informe um e-mail profissional válido.';
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    if (Object.keys(newErrors).length === 0) {
+      setStep(2);
+      trackEvent('Step1ContactCompleted', {
+        fullName: currentFullName,
+        instagram: currentInsta,
+        email: currentEmail,
+      });
+    }
   };
 
-  // Validate Step 2: Qualification questions
+  // Validação da Etapa 2 (Perguntas de Qualificação)
   const validateStep2 = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.activeClients) {
@@ -131,18 +215,6 @@ export const QualificationForm: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNextStep = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateStep1()) {
-      setStep(2);
-      trackEvent('Step1ContactCompleted', {
-        fullName: formData.fullName,
-        instagram: formData.instagram,
-        email: formData.email,
-      });
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep2()) return;
@@ -150,8 +222,12 @@ export const QualificationForm: React.FC = () => {
     setIsSubmitting(true);
 
     const tracking = getTrackingParams();
+    const cleanPhone = formData.whatsapp.replace(/\D/g, '');
     const payload = {
       ...formData,
+      whatsappFormatted: formData.whatsapp,
+      whatsappRaw: cleanPhone,
+      whatsappE164: cleanPhone.length >= 10 ? `+55${cleanPhone}` : cleanPhone,
       ...tracking,
       submittedAt: new Date().toISOString(),
     };
@@ -278,7 +354,7 @@ export const QualificationForm: React.FC = () => {
 
           {/* Nome Completo */}
           <div className="space-y-1">
-            <label className="block text-xs sm:text-sm font-bold text-brand-dark">
+            <label htmlFor="name" className="block text-xs sm:text-sm font-bold text-brand-dark">
               Nome completo
             </label>
             <div className="relative">
@@ -286,11 +362,16 @@ export const QualificationForm: React.FC = () => {
                 <User className="w-4 h-4" />
               </div>
               <input
+                id="name"
+                name="name"
                 type="text"
+                autoComplete="name"
+                inputMode="text"
                 placeholder="Ex: Carlos Eduardo Silva"
                 value={formData.fullName}
                 onChange={(e) => handleInputChange('fullName', e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm text-brand-dark placeholder-brand-muted/70 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all ${
+                onBlur={(e) => handleInputChange('fullName', e.target.value.trim())}
+                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-base sm:text-sm text-brand-dark placeholder-brand-muted/70 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all ${
                   errors.fullName ? 'border-red-400 bg-red-50/20' : 'border-brand-border focus:border-brand-primary'
                 }`}
               />
@@ -300,7 +381,7 @@ export const QualificationForm: React.FC = () => {
 
           {/* Instagram da Agência */}
           <div className="space-y-1">
-            <label className="block text-xs sm:text-sm font-bold text-brand-dark">
+            <label htmlFor="agencyInstagram" className="block text-xs sm:text-sm font-bold text-brand-dark">
               Instagram da agência
             </label>
             <div className="relative">
@@ -308,11 +389,15 @@ export const QualificationForm: React.FC = () => {
                 <Instagram className="w-4 h-4" />
               </div>
               <input
+                id="agencyInstagram"
+                name="agencyInstagram"
                 type="text"
+                inputMode="text"
                 placeholder="@suaagencia"
                 value={formData.instagram}
                 onChange={handleInstagramChange}
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm text-brand-dark placeholder-brand-muted/70 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all ${
+                onBlur={handleInstagramBlur}
+                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-base sm:text-sm text-brand-dark placeholder-brand-muted/70 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all ${
                   errors.instagram ? 'border-red-400 bg-red-50/20' : 'border-brand-border focus:border-brand-primary'
                 }`}
               />
@@ -322,7 +407,7 @@ export const QualificationForm: React.FC = () => {
 
           {/* WhatsApp com DDD */}
           <div className="space-y-1">
-            <label className="block text-xs sm:text-sm font-bold text-brand-dark">
+            <label htmlFor="tel" className="block text-xs sm:text-sm font-bold text-brand-dark">
               WhatsApp com DDD
             </label>
             <div className="relative">
@@ -330,14 +415,17 @@ export const QualificationForm: React.FC = () => {
                 <Phone className="w-4 h-4" />
               </div>
               <input
-                id="form-field-whatsapp"
+                id="tel"
+                name="tel"
                 type="tel"
-                inputMode="numeric"
+                autoComplete="tel"
+                inputMode="tel"
                 placeholder="(85) 99999-9999"
                 value={formData.whatsapp}
                 onChange={handlePhoneChange}
+                onBlur={handlePhoneBlur}
                 maxLength={15}
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm text-brand-dark placeholder-brand-muted/70 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all ${
+                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-base sm:text-sm text-brand-dark placeholder-brand-muted/70 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all ${
                   errors.whatsapp ? 'border-red-400 bg-red-50/20' : 'border-brand-border focus:border-brand-primary'
                 }`}
               />
@@ -347,7 +435,7 @@ export const QualificationForm: React.FC = () => {
 
           {/* E-mail Profissional */}
           <div className="space-y-1">
-            <label className="block text-xs sm:text-sm font-bold text-brand-dark">
+            <label htmlFor="email" className="block text-xs sm:text-sm font-bold text-brand-dark">
               E-mail profissional
             </label>
             <div className="relative">
@@ -355,11 +443,16 @@ export const QualificationForm: React.FC = () => {
                 <Mail className="w-4 h-4" />
               </div>
               <input
+                id="email"
+                name="email"
                 type="email"
+                autoComplete="email"
+                inputMode="email"
                 placeholder="seuemail@suaagencia.com.br"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm text-brand-dark placeholder-brand-muted/70 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all ${
+                onBlur={(e) => handleInputChange('email', e.target.value.trim())}
+                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-base sm:text-sm text-brand-dark placeholder-brand-muted/70 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all ${
                   errors.email ? 'border-red-400 bg-red-50/20' : 'border-brand-border focus:border-brand-primary'
                 }`}
               />
