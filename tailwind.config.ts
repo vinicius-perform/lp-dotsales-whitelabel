@@ -57,12 +57,17 @@ const config: Config = {
         'wl-rise': {
           '0%': { transform: 'translateY(10px)', opacity: '0.9' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
-        }
+        },
+        'marquee': {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both',
         'wl-pulse': 'wl-pulse 2s infinite',
         'wl-rise': 'wl-rise 0.4s ease-out',
+        'marquee': 'marquee 38s linear infinite',
       },
       backgroundImage: {
         'mint-gradient': 'linear-gradient(110deg, #d0fae5 0%, #F0F7F5 45%, #FFFFFF 85%)',

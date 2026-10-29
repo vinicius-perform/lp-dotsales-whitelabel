@@ -3,6 +3,7 @@ import { AnnouncementBar } from '@/components/AnnouncementBar';
 import { Header } from '@/components/Header';
 import { HeroSection } from '@/components/HeroSection';
 import { ProductDemoSection } from '@/components/ProductDemoSection';
+import { SocialProofSection } from '@/components/SocialProofSection';
 import { HowItWorks } from '@/components/HowItWorks';
 import { BenefitsSection } from '@/components/BenefitsSection';
 import { FeatureHighlights } from '@/components/FeatureHighlights';
@@ -26,7 +27,10 @@ export default function Home() {
       {/* 4. Case / Demonstração Principal */}
       <ProductDemoSection />
 
-      {/* 5. Como Funciona */}
+      {/* 5. Prova Social: Globo 3D + Carrossel de Clientes Oficiais */}
+      <SocialProofSection />
+
+      {/* 6. Como Funciona */}
       <HowItWorks />
 
       {/* 6. Provas Sociais e Benefícios */}
