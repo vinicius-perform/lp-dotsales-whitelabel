@@ -79,7 +79,9 @@ export const HeroSection: React.FC = () => {
                 className="h-6 w-auto object-contain shrink-0"
               />
               <span className="text-xs text-brand-muted border-l border-brand-border/80 pl-2.5 leading-snug">
-                Integração nativa oficial homologada com <strong className="text-brand-dark font-semibold">Meta Ads</strong> e <strong className="text-brand-dark font-semibold">WhatsApp Cloud API</strong>
+                Integração nativa oficial homologada com <br />
+                <strong className="text-brand-dark font-semibold">Meta Ads</strong> e{' '}
+                <strong className="text-brand-dark font-semibold">WhatsApp Cloud API</strong>
               </span>
             </div>
 
