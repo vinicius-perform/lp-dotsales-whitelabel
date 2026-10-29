@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { Badge } from './ui/Badge';
-import { Users, ShieldCheck, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Users, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 interface ClientItem {
   name: string;
@@ -71,27 +71,96 @@ const CLIENTS: ClientItem[] = [
 
 export const SocialProofSection: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isInView, setIsInView] = useState(true);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % CLIENTS.length);
   }, []);
 
-  const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + CLIENTS.length) % CLIENTS.length);
+  // Pausa a rotação quando a seção não estiver visível na tela (economia de bateria e GPU)
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
+  // Transição automática a cada 4,5 segundos
   useEffect(() => {
-    if (isPaused) return;
+    if (!isInView) return;
     const interval = setInterval(nextSlide, 4500);
     return () => clearInterval(interval);
-  }, [isPaused, nextSlide]);
+  }, [isInView, nextSlide]);
+
+  // Função de estilo em 3 camadas de profundidade editorial
+  const getCardStyle = (rel: number): React.CSSProperties => {
+    if (rel === 0) {
+      // Camada 1: Fotografia Principal em destaque total
+      return {
+        zIndex: 30,
+        transform: 'translateX(0%) scale(1)',
+        opacity: 1,
+        filter: 'blur(0px)',
+        pointerEvents: 'auto',
+      };
+    }
+    if (rel === 1) {
+      // Camada 2: Próxima Fotografia, posicionada à direita, com desfoque moderado
+      return {
+        zIndex: 20,
+        transform: 'translateX(18%) scale(0.92)',
+        opacity: 0.55,
+        filter: 'blur(2.5px)',
+        pointerEvents: 'none',
+      };
+    }
+    if (rel === 2) {
+      // Camada 3: Terceira Fotografia ao fundo com maior desfoque e opacidade sutil
+      return {
+        zIndex: 10,
+        transform: 'translateX(34%) scale(0.84)',
+        opacity: 0.28,
+        filter: 'blur(4.5px)',
+        pointerEvents: 'none',
+      };
+    }
+    if (rel === CLIENTS.length - 1) {
+      // Fotografia anterior saindo suavemente para a esquerda
+      return {
+        zIndex: 25,
+        transform: 'translateX(-14%) scale(0.95)',
+        opacity: 0,
+        filter: 'blur(1px)',
+        pointerEvents: 'none',
+      };
+    }
+    // Demais fotos preparadas no pool de animação
+    return {
+      zIndex: 0,
+      transform: 'translateX(40%) scale(0.8)',
+      opacity: 0,
+      filter: 'blur(6px)',
+      pointerEvents: 'none',
+    };
+  };
 
   return (
-    <section className="py-20 sm:py-28 bg-white border-b border-brand-border/60 overflow-hidden relative">
+    <section
+      ref={sectionRef}
+      className="py-20 sm:py-28 bg-white border-b border-brand-border/60 overflow-hidden relative"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* COMPOSIÇÃO EDITORIAL: COPY & MÉTRICAS (ESQUERDA) + DESTAQUE INDIVIDUAL DE CLIENTES (DIREITA) */}
+        {/* COMPOSIÇÃO EDITORIAL: COPY & MÉTRICAS (ESQUERDA) + CARROSSEL EM 3 CAMADAS (DIREITA) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           
           {/* Coluna Esquerda: Copy Editorial e Indicadores Oficiais */}
@@ -149,102 +218,59 @@ export const SocialProofSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Coluna Direita: Destaque Fotográfico dos Clientes com Crossfade Suave */}
-          <div className="lg:col-span-6 flex justify-center items-center relative">
-            {/* Glow sutil institucional de fundo */}
-            <div className="absolute inset-0 bg-brand-primary/5 rounded-full blur-3xl pointer-events-none -z-10" />
-
-            <div
-              className="relative w-full max-w-[460px] aspect-[4/4.8] sm:h-[490px] rounded-3xl overflow-hidden shadow-2xl border border-brand-border/80 bg-brand-offwhite group"
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
-            >
-              {/* Slides dos Clientes com Crossfade Suave */}
+          {/* Coluna Direita: Carrossel Editorial em 3 Camadas Sobrepostas */}
+          <div className="lg:col-span-6 flex justify-center lg:justify-start items-center relative pl-0 lg:pl-6">
+            {/* Stage proporcional com overflow horizontal contido */}
+            <div className="relative w-full max-w-[340px] sm:max-w-[400px] aspect-[4/4.9] sm:h-[480px]">
               {CLIENTS.map((client, idx) => {
-                const isActive = idx === currentIndex;
+                const rel = (idx - currentIndex + CLIENTS.length) % CLIENTS.length;
+                const style = getCardStyle(rel);
+                const isMain = rel === 0;
+
                 return (
                   <div
                     key={client.name}
-                    aria-hidden={!isActive}
-                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                      isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-                    }`}
+                    aria-hidden={!isMain}
+                    style={style}
+                    className="editorial-carousel-card absolute inset-0 rounded-[24px] overflow-hidden shadow-xl shadow-slate-900/10 will-change-transform will-change-[filter,opacity]"
                   >
-                    {/* Imagem em Resolução Original e Nitidez Máxima (Sem recompressão) */}
+                    {/* Fotografia em Resolução Original e Nitidez Máxima */}
                     <Image
                       src={client.image}
                       alt={client.name}
                       fill
                       unoptimized
-                      priority={idx === 0}
+                      priority={idx < 3}
                       className="object-cover object-center"
                     />
 
-                    {/* Gradiente para leitura impecável dos textos */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent pointer-events-none" />
+                    {/* Gradiente escuro suave na região inferior apenas para legibilidade */}
+                    {isMain && (
+                      <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
+                    )}
 
-                    {/* Informações do Cliente */}
-                    <div className="absolute bottom-16 inset-x-0 p-6 sm:p-7 z-10 text-white">
-                      <div className="space-y-1">
-                        <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight drop-shadow-sm font-sans">
-                          {client.name}
-                        </h3>
-                        <p className="text-sm sm:text-base text-brand-mint font-semibold drop-shadow-xs">
-                          {client.role}
-                        </p>
+                    {/* Informações do Cliente — Exclusivas na Fotografia Principal */}
+                    {isMain && (
+                      <div className="absolute bottom-0 inset-x-0 p-6 sm:p-7 z-10 text-white animate-fade-up">
+                        {/* Selo discreto de Cliente Oficial dot.Sales */}
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 backdrop-blur-md border border-white/20 text-white text-[11px] font-semibold mb-2.5 shadow-xs">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-brand-mint" />
+                          <span>Cliente Oficial dot.Sales</span>
+                        </div>
+
+                        <div className="space-y-0.5">
+                          <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight drop-shadow-sm font-sans">
+                            {client.name}
+                          </h3>
+                          <p className="text-sm sm:text-base text-brand-mint font-semibold drop-shadow-xs">
+                            {client.role}
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 );
               })}
-
-              {/* Tag Superior e Contador de Slides (Camada Fixa) */}
-              <div className="absolute top-4 inset-x-4 z-20 flex items-center justify-between pointer-events-none">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white text-xs font-semibold shadow-sm">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-brand-mint" />
-                  <span>Cliente Oficial dot.Sales</span>
-                </div>
-                <div className="px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-white/90 text-[11px] font-mono font-medium">
-                  {currentIndex + 1} / {CLIENTS.length}
-                </div>
-              </div>
-
-              {/* Barra de Navegação e Controles Interativos (Camada Fixa) */}
-              <div className="absolute bottom-0 inset-x-0 px-6 sm:px-7 pb-4 pt-2 z-20 flex items-center justify-between border-t border-white/15 bg-gradient-to-t from-black/80 to-transparent">
-                {/* Dots Indicadores com clique direto */}
-                <div className="flex items-center gap-1.5">
-                  {CLIENTS.map((_, dotIdx) => (
-                    <button
-                      key={dotIdx}
-                      onClick={() => setCurrentIndex(dotIdx)}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        dotIdx === currentIndex
-                          ? 'w-6 bg-brand-primary shadow-xs'
-                          : 'w-1.5 bg-white/40 hover:bg-white/70'
-                      }`}
-                      aria-label={`Ver cliente ${dotIdx + 1}`}
-                    />
-                  ))}
-                </div>
-
-                {/* Botões Anterior e Próximo */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={prevSlide}
-                    className="p-2 rounded-full bg-white/10 hover:bg-white/25 active:scale-95 text-white border border-white/20 transition-all backdrop-blur-sm"
-                    aria-label="Cliente anterior"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={nextSlide}
-                    className="p-2 rounded-full bg-white/10 hover:bg-white/25 active:scale-95 text-white border border-white/20 transition-all backdrop-blur-sm"
-                    aria-label="Próximo cliente"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
 
