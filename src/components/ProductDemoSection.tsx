@@ -55,13 +55,13 @@ export const ProductDemoSection: React.FC = () => {
             {/* Tab 1: Rastreio de Origem */}
             <div 
               onClick={() => setActiveTab('rastreio')}
-              className={`p-5 rounded-2xl border transition-all cursor-pointer ${
+              className={`p-5 rounded-2xl border transition-all cursor-pointer feature-border-beam feature-border-beam-0 ${
                 activeTab === 'rastreio'
-                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm'
-                  : 'border-brand-border bg-white hover:border-brand-mint'
+                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm feature-border-beam-active'
+                  : 'border-brand-border bg-white hover:border-brand-mint feature-border-beam-inactive'
               }`}
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 relative z-10">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                   activeTab === 'rastreio' ? 'bg-brand-primary text-white' : 'bg-brand-pale text-brand-primary'
                 }`}>
@@ -83,13 +83,13 @@ export const ProductDemoSection: React.FC = () => {
             {/* Tab 2: Dashboard Real de Vendas */}
             <div 
               onClick={() => setActiveTab('dashboard')}
-              className={`p-5 rounded-2xl border transition-all cursor-pointer ${
+              className={`p-5 rounded-2xl border transition-all cursor-pointer feature-border-beam feature-border-beam-1 ${
                 activeTab === 'dashboard'
-                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm'
-                  : 'border-brand-border bg-white hover:border-brand-mint'
+                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm feature-border-beam-active'
+                  : 'border-brand-border bg-white hover:border-brand-mint feature-border-beam-inactive'
               }`}
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 relative z-10">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                   activeTab === 'dashboard' ? 'bg-brand-primary text-white' : 'bg-brand-pale text-brand-primary'
                 }`}>
@@ -109,13 +109,13 @@ export const ProductDemoSection: React.FC = () => {
             {/* Tab 3: Painel da Agência */}
             <div 
               onClick={() => setActiveTab('painel')}
-              className={`p-5 rounded-2xl border transition-all cursor-pointer ${
+              className={`p-5 rounded-2xl border transition-all cursor-pointer feature-border-beam feature-border-beam-2 ${
                 activeTab === 'painel'
-                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm'
-                  : 'border-brand-border bg-white hover:border-brand-mint'
+                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm feature-border-beam-active'
+                  : 'border-brand-border bg-white hover:border-brand-mint feature-border-beam-inactive'
               }`}
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 relative z-10">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                   activeTab === 'painel' ? 'bg-brand-primary text-white' : 'bg-brand-pale text-brand-primary'
                 }`}>
@@ -135,13 +135,13 @@ export const ProductDemoSection: React.FC = () => {
             {/* Tab 4: Experiência White Label */}
             <div 
               onClick={() => setActiveTab('marca')}
-              className={`p-5 rounded-2xl border transition-all cursor-pointer ${
+              className={`p-5 rounded-2xl border transition-all cursor-pointer feature-border-beam feature-border-beam-3 ${
                 activeTab === 'marca'
-                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm'
-                  : 'border-brand-border bg-white hover:border-brand-mint'
+                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm feature-border-beam-active'
+                  : 'border-brand-border bg-white hover:border-brand-mint feature-border-beam-inactive'
               }`}
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 relative z-10">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                   activeTab === 'marca' ? 'bg-brand-primary text-white' : 'bg-brand-pale text-brand-primary'
                 }`}>

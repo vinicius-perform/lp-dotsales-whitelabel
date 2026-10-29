@@ -104,3 +104,95 @@ code, pre, .font-mono, [data-mono="true"] {
     border-color: #d0fae5;
   }
 }
+
+/* ==========================================================================
+   ANIMATED BORDER BEAM — FEATURE CARDS (dot.Sales)
+   Utiliza @property, conic-gradient e mask-composite para percorrer as bordas
+   com feixe luminoso contínuo sem provocar repaints ou layout shifts.
+   ========================================================================== */
+
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes border-beam-spin {
+  to {
+    --border-angle: 360deg;
+  }
+}
+
+.feature-border-beam {
+  position: relative;
+}
+
+.feature-border-beam::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0deg,
+    transparent 40deg,
+    rgba(0, 122, 85, 0.15) 55deg,
+    rgba(0, 168, 120, 0.5) 72deg,
+    #80E4B6 86deg,
+    rgba(255, 255, 255, 0.95) 90deg,
+    #80E4B6 93deg,
+    rgba(0, 168, 120, 0.4) 96deg,
+    transparent 102deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  -webkit-mask-clip: content-box, border-box;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  mask-clip: content-box, border-box;
+  pointer-events: none;
+  z-index: 2;
+  box-sizing: border-box;
+  animation: border-beam-spin 7s linear infinite;
+  transition: opacity 0.3s ease;
+}
+
+/* Diferença de fase entre os 4 cards para movimento orgânico */
+.feature-border-beam-0::before {
+  animation-delay: 0s;
+}
+
+.feature-border-beam-1::before {
+  animation-delay: -1.75s;
+}
+
+.feature-border-beam-2::before {
+  animation-delay: -3.5s;
+}
+
+.feature-border-beam-3::before {
+  animation-delay: -5.25s;
+}
+
+/* Intensidade do feixe conforme seleção do card */
+.feature-border-beam-active::before {
+  opacity: 1;
+}
+
+.feature-border-beam-inactive::before {
+  opacity: 0.45;
+}
+
+.feature-border-beam-inactive:hover::before {
+  opacity: 0.75;
+}
+
+/* Acessibilidade: respeita prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .feature-border-beam::before {
+    animation: none !important;
+    display: none !important;
+  }
+}
