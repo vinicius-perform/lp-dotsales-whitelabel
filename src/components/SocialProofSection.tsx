@@ -94,10 +94,10 @@ export const SocialProofSection: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Transição automática a cada 6 segundos (tempo ampliado para leitura confortável)
+  // Transição automática a cada 3 segundos (reduzido pela metade conforme solicitado)
   useEffect(() => {
     if (!isInView) return;
-    const interval = setInterval(nextSlide, 6000);
+    const interval = setInterval(nextSlide, 3000);
     return () => clearInterval(interval);
   }, [isInView, nextSlide]);
 
