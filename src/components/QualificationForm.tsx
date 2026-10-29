@@ -11,10 +11,36 @@ import {
   Mail,
   Instagram,
   Sparkles,
+  ChevronDown,
 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { getTrackingParams, trackEvent } from '@/lib/tracking';
 import { QualificationData } from '@/lib/types';
+
+// Opções oficiais dos dropdowns da Etapa 2
+const ACTIVE_CLIENTS_OPTIONS = [
+  'Ainda não tenho clientes',
+  '1 a 4 clientes',
+  '5 a 10 clientes',
+  '11 a 20 clientes',
+  '21 a 40 clientes',
+  'Mais de 40 clientes',
+];
+
+const MAIN_SERVICE_OPTIONS = [
+  'Tráfego pago / Performance',
+  'Marketing digital completo',
+  'Social Media',
+  'Consultoria / Growth',
+  'Outro',
+];
+
+const USE_CRM_OPTIONS = [
+  'Sim, a maioria',
+  'Sim, alguns',
+  'Não utilizam',
+  'Não sei informar',
+];
 
 // Helper para normalizar o Instagram da agência (aceita @user, user e URLs completas)
 const normalizeInstagram = (value: string): string => {
@@ -26,7 +52,6 @@ const normalizeInstagram = (value: string): string => {
     try {
       const parts = val.split('instagram.com/');
       if (parts[1]) {
-        // Extrai o identificador antes de query params (?), barras (/) ou hashtags (#)
         val = parts[1].split('/')[0].split('?')[0].split('#')[0];
       }
     } catch (e) {
@@ -114,7 +139,6 @@ export const QualificationForm: React.FC = () => {
   // Manipulação inteligente do Instagram
   const handleInstagramChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
-    // Se colou URL inteira, normaliza na hora para feedback visual imediato
     if (value.includes('instagram.com/')) {
       value = normalizeInstagram(value);
     } else if (value && !value.startsWith('@') && !value.startsWith('http')) {
@@ -144,8 +168,7 @@ export const QualificationForm: React.FC = () => {
   const handleNextStep = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Fallback de sincronização DOM -> React para In-App Browsers (Instagram/Facebook)
-    // que preenchem os inputs simultaneamente sem disparar eventos React granulares
+    // Fallback de sincronização DOM -> React para In-App Browsers
     const formEl = e.currentTarget;
     const nameInput = formEl.elements.namedItem('name') as HTMLInputElement | null;
     const instaInput = formEl.elements.namedItem('agencyInstagram') as HTMLInputElement | null;
@@ -166,7 +189,7 @@ export const QualificationForm: React.FC = () => {
       email: currentEmail,
     }));
 
-    // Validação estrita dos dados da Etapa 1
+    // Validação dos dados da Etapa 1
     const newErrors: Record<string, string> = {};
     if (!currentFullName || currentFullName.length < 3) {
       newErrors.fullName = 'Informe seu nome completo.';
@@ -198,14 +221,14 @@ export const QualificationForm: React.FC = () => {
     }
   };
 
-  // Validação da Etapa 2 (Perguntas de Qualificação)
+  // Validação da Etapa 2 (Dropdowns de Qualificação)
   const validateStep2 = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.activeClients) {
       newErrors.activeClients = 'Selecione a quantidade de clientes atendidos.';
     }
     if (!formData.mainService) {
-      newErrors.mainService = 'Selecione o serviço principal da agência.';
+      newErrors.mainService = 'Selecione o principal serviço da sua agência.';
     }
     if (!formData.useCrm) {
       newErrors.useCrm = 'Informe se seus clientes utilizam CRM.';
@@ -475,7 +498,7 @@ export const QualificationForm: React.FC = () => {
         </form>
       )}
 
-      {/* ETAPA 2: Perguntas Qualificatórias */}
+      {/* ETAPA 2: Perguntas Qualificatórias com Dropdowns Elegantes */}
       {step === 2 && (
         <form onSubmit={handleSubmit} noValidate className="space-y-5 animate-fade-up">
           <div className="flex items-center gap-2">
@@ -497,96 +520,129 @@ export const QualificationForm: React.FC = () => {
             </p>
           </div>
 
-          {/* Campo 1: Clientes ativos */}
+          {/* Campo 1 — Quantos clientes ativos sua agência atende? */}
           <div className="space-y-1.5">
-            <label className="block text-xs sm:text-sm font-bold text-brand-dark">
+            <label htmlFor="activeClients" className="block text-xs sm:text-sm font-bold text-brand-dark">
               Quantos clientes ativos sua agência atende?
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {[
-                'Ainda não tenho clientes',
-                '1 a 4 clientes',
-                '5 a 10 clientes',
-                '11 a 20 clientes',
-                '21 a 40 clientes',
-                'Mais de 40 clientes',
-              ].map((opt) => (
-                <button
-                  type="button"
-                  key={opt}
-                  onClick={() => handleInputChange('activeClients', opt)}
-                  className={`text-left text-xs sm:text-sm p-3 rounded-xl border transition-all duration-150 ${
-                    formData.activeClients === opt
-                      ? 'border-brand-primary bg-brand-pale text-brand-primary font-bold shadow-sm ring-1 ring-brand-primary'
-                      : 'border-brand-border bg-brand-offwhite/50 text-brand-dark hover:border-brand-primary/40 hover:bg-white'
+            <div className="relative">
+              <select
+                id="activeClients"
+                name="activeClients"
+                value={formData.activeClients}
+                onChange={(e) => handleInputChange('activeClients', e.target.value)}
+                className={`w-full appearance-none pl-4 pr-10 py-3 rounded-xl border text-base sm:text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all font-sans ${
+                  !formData.activeClients ? 'text-brand-muted/70' : 'text-brand-dark font-medium'
+                } ${
+                  errors.activeClients
+                    ? 'border-red-400 bg-red-50/20'
+                    : formData.activeClients
+                    ? 'border-brand-primary/80 ring-1 ring-brand-primary/20'
+                    : 'border-brand-border hover:border-brand-mint focus:border-brand-primary'
+                }`}
+              >
+                <option value="" disabled className="text-brand-muted/70">
+                  Selecione a quantidade de clientes
+                </option>
+                {ACTIVE_CLIENTS_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt} className="text-brand-dark bg-white py-1">
+                    {opt}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                <ChevronDown
+                  className={`w-4 h-4 transition-colors ${
+                    formData.activeClients ? 'text-brand-primary' : 'text-brand-muted'
                   }`}
-                >
-                  {opt}
-                </button>
-              ))}
+                />
+              </div>
             </div>
             {errors.activeClients && (
               <p className="text-xs text-red-500 font-medium mt-1">{errors.activeClients}</p>
             )}
           </div>
 
-          {/* Campo 2: Principal serviço */}
+          {/* Campo 2 — Qual é o principal serviço da sua agência? */}
           <div className="space-y-1.5">
-            <label className="block text-xs sm:text-sm font-bold text-brand-dark">
+            <label htmlFor="mainService" className="block text-xs sm:text-sm font-bold text-brand-dark">
               Qual é o principal serviço da sua agência?
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {[
-                'Tráfego pago / Performance',
-                'Marketing digital completo',
-                'Social Media',
-                'Consultoria / Growth',
-                'Outro',
-              ].map((serv) => (
-                <button
-                  type="button"
-                  key={serv}
-                  onClick={() => handleInputChange('mainService', serv)}
-                  className={`text-left text-xs sm:text-sm p-3 rounded-xl border transition-all duration-150 ${
-                    formData.mainService === serv
-                      ? 'border-brand-primary bg-brand-pale text-brand-primary font-bold shadow-sm ring-1 ring-brand-primary'
-                      : 'border-brand-border bg-brand-offwhite/50 text-brand-dark hover:border-brand-primary/40 hover:bg-white'
+            <div className="relative">
+              <select
+                id="mainService"
+                name="mainService"
+                value={formData.mainService}
+                onChange={(e) => handleInputChange('mainService', e.target.value)}
+                className={`w-full appearance-none pl-4 pr-10 py-3 rounded-xl border text-base sm:text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all font-sans ${
+                  !formData.mainService ? 'text-brand-muted/70' : 'text-brand-dark font-medium'
+                } ${
+                  errors.mainService
+                    ? 'border-red-400 bg-red-50/20'
+                    : formData.mainService
+                    ? 'border-brand-primary/80 ring-1 ring-brand-primary/20'
+                    : 'border-brand-border hover:border-brand-mint focus:border-brand-primary'
+                }`}
+              >
+                <option value="" disabled className="text-brand-muted/70">
+                  Selecione o principal serviço
+                </option>
+                {MAIN_SERVICE_OPTIONS.map((serv) => (
+                  <option key={serv} value={serv} className="text-brand-dark bg-white py-1">
+                    {serv}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                <ChevronDown
+                  className={`w-4 h-4 transition-colors ${
+                    formData.mainService ? 'text-brand-primary' : 'text-brand-muted'
                   }`}
-                >
-                  {serv}
-                </button>
-              ))}
+                />
+              </div>
             </div>
             {errors.mainService && (
               <p className="text-xs text-red-500 font-medium mt-1">{errors.mainService}</p>
             )}
           </div>
 
-          {/* Campo 3: Clientes utilizam CRM */}
+          {/* Campo 3 — Hoje seus clientes utilizam algum CRM? */}
           <div className="space-y-1.5">
-            <label className="block text-xs sm:text-sm font-bold text-brand-dark">
+            <label htmlFor="useCrm" className="block text-xs sm:text-sm font-bold text-brand-dark">
               Hoje seus clientes utilizam algum CRM?
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                'Sim, a maioria',
-                'Sim, alguns',
-                'Não utilizam',
-                'Não sei informar',
-              ].map((crm) => (
-                <button
-                  type="button"
-                  key={crm}
-                  onClick={() => handleInputChange('useCrm', crm)}
-                  className={`text-left text-xs sm:text-sm p-3 rounded-xl border transition-all duration-150 ${
-                    formData.useCrm === crm
-                      ? 'border-brand-primary bg-brand-pale text-brand-primary font-bold shadow-sm ring-1 ring-brand-primary'
-                      : 'border-brand-border bg-brand-offwhite/50 text-brand-dark hover:border-brand-primary/40 hover:bg-white'
+            <div className="relative">
+              <select
+                id="useCrm"
+                name="useCrm"
+                value={formData.useCrm}
+                onChange={(e) => handleInputChange('useCrm', e.target.value)}
+                className={`w-full appearance-none pl-4 pr-10 py-3 rounded-xl border text-base sm:text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary/30 transition-all font-sans ${
+                  !formData.useCrm ? 'text-brand-muted/70' : 'text-brand-dark font-medium'
+                } ${
+                  errors.useCrm
+                    ? 'border-red-400 bg-red-50/20'
+                    : formData.useCrm
+                    ? 'border-brand-primary/80 ring-1 ring-brand-primary/20'
+                    : 'border-brand-border hover:border-brand-mint focus:border-brand-primary'
+                }`}
+              >
+                <option value="" disabled className="text-brand-muted/70">
+                  Selecione uma opção
+                </option>
+                {USE_CRM_OPTIONS.map((crm) => (
+                  <option key={crm} value={crm} className="text-brand-dark bg-white py-1">
+                    {crm}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                <ChevronDown
+                  className={`w-4 h-4 transition-colors ${
+                    formData.useCrm ? 'text-brand-primary' : 'text-brand-muted'
                   }`}
-                >
-                  {crm}
-                </button>
-              ))}
+                />
+              </div>
             </div>
             {errors.useCrm && (
               <p className="text-xs text-red-500 font-medium mt-1">{errors.useCrm}</p>
