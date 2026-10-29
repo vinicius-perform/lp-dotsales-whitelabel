@@ -305,7 +305,7 @@ export const QualificationForm: React.FC = () => {
       >
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-brand-primary" />
         
-        <div className="text-center py-6">
+        <div className="text-center py-8">
           <div className="w-16 h-16 bg-brand-pale text-brand-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
             <CheckCircle2 className="w-10 h-10" />
           </div>
@@ -318,23 +318,14 @@ export const QualificationForm: React.FC = () => {
             Recebemos sua solicitação!
           </h3>
 
-          <p className="text-brand-muted text-base sm:text-lg max-w-md mx-auto mb-6 leading-relaxed">
-            Nossa equipe entrará em contato para apresentar como o White Label pode funcionar na sua agência.
+          <p className="text-brand-muted text-base sm:text-lg max-w-md mx-auto leading-relaxed">
+            Nossa equipe entrará em contato em breve pelo WhatsApp informado para apresentar a solução White Label da sua agência.
           </p>
 
-          <div className="bg-brand-offwhite border border-brand-border rounded-xl p-4 text-xs text-brand-muted text-left max-w-md mx-auto mb-8 space-y-1.5">
-            <div className="font-semibold text-brand-dark flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-brand-primary" />
-              <span>Ambiente Local de Demonstração</span>
-            </div>
-            <p>
-              Nenhum dado real foi transmitido para serviços externos. O payload foi registrado e auditado com sucesso no console do servidor local.
-            </p>
+          <div className="pt-6 mt-6 border-t border-brand-border/60 flex items-center justify-center gap-2 text-xs text-brand-muted">
+            <ShieldCheck className="w-4 h-4 text-brand-primary" />
+            <span>Seus dados foram transmitidos com segurança. Sem spam.</span>
           </div>
-
-          <Button onClick={resetForm} variant="outline" size="md">
-            Fazer Nova Simulação
-          </Button>
         </div>
       </div>
     );
