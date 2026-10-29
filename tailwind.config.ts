@@ -22,8 +22,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "Geist Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        sans: ["var(--font-inter)", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "monospace"],
       },
       letterSpacing: {
         'tighter-hero': '-0.035em',

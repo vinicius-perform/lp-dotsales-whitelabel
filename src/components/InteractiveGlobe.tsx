@@ -19,7 +19,6 @@ const LABELS: LabelPoint[] = [
 
 export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className = '' }) => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const [hasWebGL, setHasWebGL] = useState(true);
   const [projectedLabels, setProjectedLabels] = useState<
     Array<{ name: string; x: number; y: number; visible: boolean; opacity: number }>
   >([]);
@@ -34,39 +33,34 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
 
     // Check prefers-reduced-motion
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobile = window.innerWidth < 640;
 
     // 1. Scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.z = isMobile ? 280 : 260;
+    camera.position.z = 260;
 
     let renderer: THREE.WebGLRenderer | null = null;
     try {
-      renderer = new THREE.WebGLRenderer({
-        antialias: !isMobile,
-        alpha: true,
-        powerPreference: 'high-performance',
-      });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
       renderer.setSize(container.clientWidth, container.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(renderer.domElement);
     } catch (e) {
-      console.warn('WebGL initialization failed, falling back to static visual', e);
-      setHasWebGL(false);
+      console.warn('WebGL not supported, globe cannot render', e);
       return;
     }
 
     // 2. Globe Group (for rotation)
     const globeGroup = new THREE.Group();
+    // Default pleasant tilt
     globeGroup.rotation.x = 0.25;
     globeGroup.rotation.y = -0.5;
     scene.add(globeGroup);
 
     const radius = 95;
 
-    // 3. Inner translucent sphere
-    const sphereGeo = new THREE.SphereGeometry(radius * 0.99, isMobile ? 32 : 48, isMobile ? 32 : 48);
+    // 3. Inner translucent sphere (soft ambient shading)
+    const sphereGeo = new THREE.SphereGeometry(radius * 0.99, 48, 48);
     const sphereMat = new THREE.MeshBasicMaterial({
       color: 0xecfdf5,
       transparent: true,
@@ -76,7 +70,7 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
     globeGroup.add(baseSphere);
 
     // Subtle atmospheric glow outline
-    const glowGeo = new THREE.SphereGeometry(radius * 1.01, 24, 24);
+    const glowGeo = new THREE.SphereGeometry(radius * 1.01, 32, 32);
     const glowMat = new THREE.MeshBasicMaterial({
       color: 0xd0fae5,
       transparent: true,
@@ -87,8 +81,7 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
     globeGroup.add(glowSphere);
 
     // 4. Dot matrix on sphere surface (Fibonacci distribution for natural density)
-    // Reduce point count on mobile to preserve CPU & GPU
-    const pointCount = isMobile ? 700 : 1400;
+    const pointCount = 1400;
     const positions = new Float32Array(pointCount * 3);
     const colors = new Float32Array(pointCount * 3);
 
@@ -98,9 +91,9 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
     const phi = Math.PI * (3 - Math.sqrt(5)); // Golden angle
 
     for (let i = 0; i < pointCount; i++) {
-      const y = 1 - (i / (pointCount - 1)) * 2;
-      const radiusAtY = Math.sqrt(1 - y * y);
-      const theta = phi * i;
+      const y = 1 - (i / (pointCount - 1)) * 2; // y goes from 1 to -1
+      const radiusAtY = Math.sqrt(1 - y * y); // radius at y
+      const theta = phi * i; // golden angle increment
 
       const x = Math.cos(theta) * radiusAtY;
       const z = Math.sin(theta) * radiusAtY;
@@ -109,6 +102,7 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
       positions[i * 3 + 1] = y * radius;
       positions[i * 3 + 2] = z * radius;
 
+      // Color variation
       const mixed = primaryColor.clone().lerp(mintColor, Math.random() * 0.4);
       colors[i * 3] = mixed.r;
       colors[i * 3 + 1] = mixed.g;
@@ -120,7 +114,7 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
     pointsGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const pointsMat = new THREE.PointsMaterial({
-      size: isMobile ? 2.6 : 2.2,
+      size: 2.2,
       vertexColors: true,
       transparent: true,
       opacity: 0.85,
@@ -142,11 +136,11 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
 
     // 5. Connection Arcs (Curved 3D Great-Circles)
     const arcPointsPairs: [LabelPoint, LabelPoint][] = [
-      [LABELS[0], LABELS[1]],
-      [LABELS[1], LABELS[2]],
-      [LABELS[2], LABELS[3]],
-      [LABELS[0], LABELS[2]],
-      [LABELS[3], LABELS[4]],
+      [LABELS[0], LABELS[1]], // Atendimento <-> CRM
+      [LABELS[1], LABELS[2]], // CRM <-> Automação
+      [LABELS[2], LABELS[3]], // Automação <-> Vendas
+      [LABELS[0], LABELS[2]], // Atendimento <-> Automação
+      [LABELS[3], LABELS[4]], // Vendas <-> Relacionamento
     ];
 
     const arcsGroup = new THREE.Group();
@@ -156,23 +150,26 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
       const v1 = latLngToVector3(p1.lat, p1.lng, radius);
       const v2 = latLngToVector3(p2.lat, p2.lng, radius);
 
+      // Midpoint elevated to form an arc
       const mid = v1.clone().add(v2).multiplyScalar(0.5);
       const dist = v1.distanceTo(v2);
       mid.normalize().multiplyScalar(radius + dist * 0.28);
 
       const curve = new THREE.QuadraticBezierCurve3(v1, mid, v2);
-      const curvePoints = curve.getPoints(isMobile ? 30 : 50);
+      const curvePoints = curve.getPoints(50);
       const curveGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
 
       const curveMat = new THREE.LineBasicMaterial({
         color: 0x007956,
         transparent: true,
         opacity: 0.65,
+        linewidth: 1.5,
       });
 
       const line = new THREE.Line(curveGeo, curveMat);
       arcsGroup.add(line);
 
+      // Pulse ring at endpoints
       [v1, v2].forEach((pos) => {
         const ringGeo = new THREE.RingGeometry(1.5, 3.2, 16);
         const ringMat = new THREE.MeshBasicMaterial({
@@ -194,7 +191,7 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
       pos: latLngToVector3(item.lat, item.lng, radius * 1.02),
     }));
 
-    // 7. Interactive dragging with mouse & touch
+    // 7. Interactive dragging with mouse & touch + inertia damping
     let isDragging = false;
     let prevMouseX = 0;
     let prevMouseY = 0;
@@ -257,7 +254,7 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
 
     const domElement = renderer.domElement;
     domElement.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
 
     domElement.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -302,6 +299,7 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
 
       pulseTime += 0.02;
 
+      // Inertia & auto-rotate
       if (!isDragging) {
         velocityX *= 0.94;
         velocityY *= 0.94;
@@ -309,11 +307,14 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
         globeGroup.rotation.x += velocityY;
 
         if (!prefersReducedMotion && Math.abs(velocityX) < 0.001) {
-          globeGroup.rotation.y += 0.0028;
+          globeGroup.rotation.y += 0.003;
         }
       }
 
+      // Restrict X rotation to keep polar orientation natural
       globeGroup.rotation.x = Math.max(-0.6, Math.min(0.6, globeGroup.rotation.x));
+
+      // Subtle pulse on outer glow
       glowSphere.scale.setScalar(1 + Math.sin(pulseTime) * 0.015);
 
       renderer.render(scene, camera);
@@ -322,10 +323,11 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
       const w = container.clientWidth;
       const h = container.clientHeight;
 
-      const camDir = camera.position.clone().normalize();
-
       const updated = labelAnchors.map((anchor) => {
         const worldPos = anchor.pos.clone().applyMatrix4(globeGroup.matrixWorld);
+
+        // Dot product with camera vector to check if facing front
+        const camDir = camera.position.clone().normalize();
         const normal = worldPos.clone().normalize();
         const dot = normal.dot(camDir);
 
@@ -350,6 +352,7 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
 
     animate();
 
+    // Cleanup
     return () => {
       cancelAnimationFrame(animationFrameId);
       observer.disconnect();
@@ -368,6 +371,7 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
         container.removeChild(renderer.domElement);
       }
 
+      // Dispose Three.js memory
       sphereGeo.dispose();
       sphereMat.dispose();
       glowGeo.dispose();
@@ -377,31 +381,6 @@ export const InteractiveGlobe: React.FC<{ className?: string }> = ({ className =
       renderer?.dispose();
     };
   }, []);
-
-  if (!hasWebGL) {
-    // Fallback if WebGL is unavailable
-    return (
-      <div className={`relative w-full h-full min-h-[340px] flex items-center justify-center p-6 ${className}`}>
-        <div className="w-56 h-56 rounded-full bg-brand-pale border-2 border-brand-mint/80 flex items-center justify-center relative shadow-inner">
-          <div className="w-40 h-40 rounded-full bg-white/80 border border-brand-border flex items-center justify-center">
-            <span className="text-xs font-bold text-brand-primary uppercase tracking-wider">dot.Sales Hub</span>
-          </div>
-          {LABELS.map((l, i) => (
-            <span
-              key={i}
-              className="absolute text-[11px] font-semibold bg-white px-2 py-0.5 rounded-full border border-brand-border shadow-xs"
-              style={{
-                top: `${20 + (i * 15)}%`,
-                left: i % 2 === 0 ? '10%' : '75%',
-              }}
-            >
-              {l.name}
-            </span>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { CheckCircle2, TrendingUp, ShieldCheck, Zap, Layers } from 'lucide-react';
 import { Badge } from './ui/Badge';
 import { QualificationForm } from './QualificationForm';
@@ -69,10 +70,12 @@ export const HeroSection: React.FC = () => {
 
             {/* Official Meta Tech Provider endorsement */}
             <div className="pt-1 flex items-center gap-3 bg-white/70 backdrop-blur-xs p-2.5 rounded-xl border border-brand-border/70 max-w-lg">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="/assets/meta-tech-provider.png"
                 alt="Meta Tech Provider"
+                width={120}
+                height={26}
+                priority
                 className="h-6 w-auto object-contain shrink-0"
               />
               <span className="text-xs text-brand-muted border-l border-brand-border/80 pl-2.5 leading-snug">

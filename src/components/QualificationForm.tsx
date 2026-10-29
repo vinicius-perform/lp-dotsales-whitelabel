@@ -266,7 +266,7 @@ export const QualificationForm: React.FC = () => {
 
       {/* ETAPA 1: Cadastro do Cliente (Nome, Instagram, WhatsApp, E-mail) */}
       {step === 1 && (
-        <form key="step-1" onSubmit={handleNextStep} className="space-y-4 animate-fade-up">
+        <form onSubmit={handleNextStep} className="space-y-4 animate-fade-up">
           <div>
             <h3 className="text-xl sm:text-2xl font-extrabold text-brand-dark tracking-tight-card leading-snug">
               Vamos preparar sua apresentação exclusiva.
@@ -386,7 +386,7 @@ export const QualificationForm: React.FC = () => {
 
       {/* ETAPA 2: Perguntas Qualificatórias */}
       {step === 2 && (
-        <form key="step-2" onSubmit={handleSubmit} className="space-y-5 animate-fade-up">
+        <form onSubmit={handleSubmit} className="space-y-5 animate-fade-up">
           <div className="flex items-center gap-2">
             <button
               type="button"

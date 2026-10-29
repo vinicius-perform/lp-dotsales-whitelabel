@@ -3,8 +3,6 @@
 @tailwind utilities;
 
 :root {
-  --font-inter: var(--font-inter, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --color-primary: #007956;
   --color-primary-hover: #005f46;
   --color-mint: #d0fae5;
@@ -23,7 +21,7 @@ html {
 body {
   background-color: #FFFFFF;
   color: #0C0C09;
-  font-family: var(--font-inter);
+  font-family: var(--font-inter), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;

@@ -8,15 +8,16 @@ import {
   Users,
   Palette,
   Lock,
+  ArrowRight,
+  Check,
   ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 
-type TabId = 'rastreio' | 'dashboard' | 'painel' | 'marca';
-
 export const ProductDemoSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabId>('rastreio');
+  const [activeTab, setActiveTab] = useState<'rastreio' | 'dashboard' | 'painel' | 'marca'>('rastreio');
 
   const scrollToForm = () => {
     const el = document.getElementById('formulario-qualificacao');
@@ -24,54 +25,6 @@ export const ProductDemoSection: React.FC = () => {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
-
-  const tabs = [
-    {
-      id: 'rastreio' as TabId,
-      icon: MessageSquare,
-      title: 'Rastreio de anúncio e conversa',
-      desc: (
-        <>
-          O lead clica no anúncio e a origem entra no contato no WhatsApp com identificador exato (
-          <code className="font-mono text-brand-primary text-xs">ctwa_clid</code>, campanha e criativo).
-        </>
-      ),
-      browserUrl: 'app.suaagencia.com.br/dashboard',
-    },
-    {
-      id: 'dashboard' as TabId,
-      icon: BarChart3,
-      title: 'Dashboard comercial integrado ao Meta',
-      desc: (
-        <>
-          Investimento puxado da conta conectada, CPL, vendas e ROAS real apurado por canal com envio de evento{' '}
-          <code className="font-mono text-brand-primary text-xs">Purchase</code> ao Meta.
-        </>
-      ),
-      browserUrl: 'app.suaagencia.com.br/dashboard',
-    },
-    {
-      id: 'painel' as TabId,
-      icon: Users,
-      title: 'Sua carteira de clientes num painel só',
-      desc: 'Administre todos os clientes, receita recorrente, usuários ativos e alertas preventivos de canais em um único login master.',
-      browserUrl: 'app.suaagencia.com.br/parceiro',
-    },
-    {
-      id: 'marca' as TabId,
-      icon: Palette,
-      title: 'Seu cliente só vê a sua marca',
-      desc: (
-        <>
-          Acesso por <code className="font-mono text-brand-primary text-xs">app.suaagencia.com.br</code> com seu
-          logotipo, cores e identidade visual sem menção à dot.Sales.
-        </>
-      ),
-      browserUrl: 'app.suaagencia.com.br/login',
-    },
-  ];
-
-  const currentTab = tabs.find((t) => t.id === activeTab) || tabs[0];
 
   return (
     <section className="py-20 sm:py-28 bg-white border-b border-brand-border/60 overflow-hidden">
@@ -94,51 +47,114 @@ export const ProductDemoSection: React.FC = () => {
         {/* Two-column Feature / Demo layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
-          {/* Left Column: Interactive Feature Selector Cards with Polished Active States */}
-          <div className="lg:col-span-5 space-y-3.5">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-
-              return (
-                <div
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`relative p-5 rounded-2xl border transition-all duration-300 ease-out cursor-pointer overflow-hidden group select-none ${
-                    isActive
-                      ? 'border-brand-primary bg-brand-pale/70 shadow-sm ring-1 ring-brand-primary/20'
-                      : 'border-brand-border bg-white hover:border-brand-mint hover:bg-brand-offwhite/70'
-                  }`}
-                >
-                  {/* Smooth active indicator bar on left border */}
-                  <div
-                    className={`absolute left-0 top-0 bottom-0 w-1.5 bg-brand-primary transition-all duration-300 ease-out ${
-                      isActive ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-30'
-                    }`}
-                  />
-
-                  <div className="flex items-start gap-4">
-                    <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${
-                        isActive
-                          ? 'bg-brand-primary text-white shadow-xs scale-105'
-                          : 'bg-brand-pale text-brand-primary scale-100 group-hover:bg-brand-pale/90'
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-base sm:text-lg font-bold text-brand-dark tracking-tight-card transition-colors duration-200">
-                        {tab.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-brand-muted mt-1 leading-relaxed">
-                        {tab.desc}
-                      </p>
-                    </div>
-                  </div>
+          {/* Left Column: Interactive Feature Selector & Arguments */}
+          <div className="lg:col-span-5 space-y-4">
+            
+            {/* Tab 1: Rastreio de Origem */}
+            <div 
+              onClick={() => setActiveTab('rastreio')}
+              className={`p-5 rounded-2xl border transition-all cursor-pointer ${
+                activeTab === 'rastreio'
+                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm'
+                  : 'border-brand-border bg-white hover:border-brand-mint'
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  activeTab === 'rastreio' ? 'bg-brand-primary text-white' : 'bg-brand-pale text-brand-primary'
+                }`}>
+                  <MessageSquare className="w-5 h-5" />
                 </div>
-              );
-            })}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-bold text-brand-dark tracking-tight-card">
+                      Rastreio de anúncio e conversa
+                    </h3>
+                  </div>
+                  <p className="text-xs sm:text-sm text-brand-muted mt-1 leading-relaxed">
+                    O lead clica no anúncio e a origem entra no contato no WhatsApp com identificador exato (<code className="font-mono text-brand-primary text-xs">ctwa_clid</code>, campanha e criativo).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tab 2: Dashboard Real de Vendas */}
+            <div 
+              onClick={() => setActiveTab('dashboard')}
+              className={`p-5 rounded-2xl border transition-all cursor-pointer ${
+                activeTab === 'dashboard'
+                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm'
+                  : 'border-brand-border bg-white hover:border-brand-mint'
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  activeTab === 'dashboard' ? 'bg-brand-primary text-white' : 'bg-brand-pale text-brand-primary'
+                }`}>
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-brand-dark tracking-tight-card">
+                    Dashboard comercial integrado ao Meta
+                  </h3>
+                  <p className="text-xs sm:text-sm text-brand-muted mt-1 leading-relaxed">
+                    Investimento puxado da conta conectada, CPL, vendas e ROAS real apurado por canal com envio de evento <code className="font-mono text-brand-primary text-xs">Purchase</code> ao Meta.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tab 3: Painel da Agência */}
+            <div 
+              onClick={() => setActiveTab('painel')}
+              className={`p-5 rounded-2xl border transition-all cursor-pointer ${
+                activeTab === 'painel'
+                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm'
+                  : 'border-brand-border bg-white hover:border-brand-mint'
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  activeTab === 'painel' ? 'bg-brand-primary text-white' : 'bg-brand-pale text-brand-primary'
+                }`}>
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-brand-dark tracking-tight-card">
+                    Sua carteira de clientes num painel só
+                  </h3>
+                  <p className="text-xs sm:text-sm text-brand-muted mt-1 leading-relaxed">
+                    Administre todos os clientes, receita recorrente, usuários ativos e alertas preventivos de canais em um único login master.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tab 4: Experiência White Label */}
+            <div 
+              onClick={() => setActiveTab('marca')}
+              className={`p-5 rounded-2xl border transition-all cursor-pointer ${
+                activeTab === 'marca'
+                  ? 'border-brand-primary bg-brand-pale/50 shadow-sm'
+                  : 'border-brand-border bg-white hover:border-brand-mint'
+              }`}
+            >
+              <div className="flex items-start gap-4">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  activeTab === 'marca' ? 'bg-brand-primary text-white' : 'bg-brand-pale text-brand-primary'
+                }`}>
+                  <Palette className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-brand-dark tracking-tight-card">
+                    Seu cliente só vê a sua marca
+                  </h3>
+                  <p className="text-xs sm:text-sm text-brand-muted mt-1 leading-relaxed">
+                    Acesso por <code className="font-mono text-brand-primary text-xs">app.suaagencia.com.br</code> com seu logotipo, cores e identidade visual sem menção à dot.Sales.
+                  </p>
+                </div>
+              </div>
+            </div>
 
             <div className="pt-4 flex items-center gap-4">
               <Button onClick={scrollToForm} variant="primary" size="md" withArrow>
@@ -152,7 +168,7 @@ export const ProductDemoSection: React.FC = () => {
 
           </div>
 
-          {/* Right Column: Authentic Browser Mockup with Smooth Crossfade */}
+          {/* Right Column: Authentic Browser Mockup with Real Product UI */}
           <div className="lg:col-span-7">
             <div className="bg-brand-offwhite rounded-3xl p-3 sm:p-5 border border-brand-border shadow-card relative">
               
@@ -163,9 +179,11 @@ export const ProductDemoSection: React.FC = () => {
                     <span className="w-3 h-3 rounded-full bg-red-400" />
                     <span className="w-3 h-3 rounded-full bg-yellow-400" />
                     <span className="w-3 h-3 rounded-full bg-green-400" />
-                    <div className="ml-2 flex items-center gap-1.5 text-xs font-mono text-brand-muted bg-brand-offwhite px-3 py-1 rounded-md border border-brand-border transition-all duration-300">
+                    <div className="ml-2 flex items-center gap-1.5 text-xs font-mono text-brand-muted bg-brand-offwhite px-3 py-1 rounded-md border border-brand-border">
                       <Lock className="w-3 h-3 text-brand-muted" />
-                      <span>{currentTab.browserUrl}</span>
+                      <span>
+                        {activeTab === 'painel' ? 'app.suaagencia.com.br/parceiro' : 'app.suaagencia.com.br/dashboard'}
+                      </span>
                     </div>
                   </div>
 
@@ -175,20 +193,17 @@ export const ProductDemoSection: React.FC = () => {
                 </div>
               </div>
 
-              {/* Dynamic Screen Viewport with True Crossfade Grid Stacking */}
-              <div className="bg-white rounded-2xl border border-brand-border p-4 sm:p-6 overflow-hidden min-h-[460px] flex flex-col justify-between relative shadow-xs">
+              {/* Dynamic Screen Viewport with smooth crossfade */}
+              <div className="bg-white rounded-2xl border border-brand-border p-4 sm:p-6 overflow-hidden min-h-[470px] flex flex-col justify-between relative">
                 
-                {/* Crossfade Grid Stack: all views rendered together in same space */}
-                <div className="grid grid-cols-1 grid-rows-1 relative flex-1">
-                  
+                <div className="relative flex-1">
                   {/* VIEW 1: Rastreio de Anúncio e Atendimento */}
                   <div
-                    className={`col-start-1 row-start-1 w-full transition-all duration-350 ease-in-out ${
+                    className={`transition-opacity duration-300 ease-in-out ${
                       activeTab === 'rastreio'
-                        ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto z-10'
-                        : 'opacity-0 translate-y-1 scale-[0.985] pointer-events-none z-0'
+                        ? 'opacity-100 relative z-10'
+                        : 'opacity-0 absolute inset-0 pointer-events-none'
                     }`}
-                    aria-hidden={activeTab !== 'rastreio'}
                   >
                     <div className="space-y-4">
                       <div className="flex items-center justify-between pb-3 border-b border-brand-border">
@@ -215,7 +230,6 @@ export const ProductDemoSection: React.FC = () => {
                           alt="Interface oficial de conversa e rastreamento dot.Sales"
                           width={1200}
                           height={700}
-                          priority
                           className="w-full h-auto object-cover max-h-[280px]"
                         />
                       </div>
@@ -249,12 +263,11 @@ export const ProductDemoSection: React.FC = () => {
 
                   {/* VIEW 2: Dashboard Real Oficial de Vendas */}
                   <div
-                    className={`col-start-1 row-start-1 w-full transition-all duration-350 ease-in-out ${
+                    className={`transition-opacity duration-300 ease-in-out ${
                       activeTab === 'dashboard'
-                        ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto z-10'
-                        : 'opacity-0 translate-y-1 scale-[0.985] pointer-events-none z-0'
+                        ? 'opacity-100 relative z-10'
+                        : 'opacity-0 absolute inset-0 pointer-events-none'
                     }`}
-                    aria-hidden={activeTab !== 'dashboard'}
                   >
                     <div className="space-y-4">
                       <div className="flex items-center justify-between pb-3 border-b border-brand-border">
@@ -331,7 +344,7 @@ export const ProductDemoSection: React.FC = () => {
                       </div>
 
                       <div className="bg-brand-pale/50 rounded-xl p-2.5 border border-brand-mint text-[11px] text-brand-muted flex items-center justify-between">
-                        <span>Custo por lead, CAC e ROAS com o investimento puxado da conta conectada.</span>
+                        <span>Custo por lead, CAC e ROAS com o investimento puxado da conta do Meta Ads conectada.</span>
                         <span className="font-mono text-brand-primary font-bold">Purchase · R$ 3.260</span>
                       </div>
                     </div>
@@ -339,12 +352,11 @@ export const ProductDemoSection: React.FC = () => {
 
                   {/* VIEW 3: Painel da Agência / Parceiro Real */}
                   <div
-                    className={`col-start-1 row-start-1 w-full transition-all duration-350 ease-in-out ${
+                    className={`transition-opacity duration-300 ease-in-out ${
                       activeTab === 'painel'
-                        ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto z-10'
-                        : 'opacity-0 translate-y-1 scale-[0.985] pointer-events-none z-0'
+                        ? 'opacity-100 relative z-10'
+                        : 'opacity-0 absolute inset-0 pointer-events-none'
                     }`}
-                    aria-hidden={activeTab !== 'painel'}
                   >
                     <div className="space-y-4">
                       <div className="flex items-center justify-between pb-3 border-b border-brand-border">
@@ -419,12 +431,11 @@ export const ProductDemoSection: React.FC = () => {
 
                   {/* VIEW 4: Mockup White Label Real */}
                   <div
-                    className={`col-start-1 row-start-1 w-full transition-all duration-350 ease-in-out ${
+                    className={`transition-opacity duration-300 ease-in-out ${
                       activeTab === 'marca'
-                        ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto z-10'
-                        : 'opacity-0 translate-y-1 scale-[0.985] pointer-events-none z-0'
+                        ? 'opacity-100 relative z-10'
+                        : 'opacity-0 absolute inset-0 pointer-events-none'
                     }`}
-                    aria-hidden={activeTab !== 'marca'}
                   >
                     <div className="space-y-4">
                       <div className="flex items-center justify-between pb-3 border-b border-brand-border">
@@ -459,11 +470,10 @@ export const ProductDemoSection: React.FC = () => {
                       </div>
                     </div>
                   </div>
-
                 </div>
 
                 {/* Bottom status indicator */}
-                <div className="pt-3 border-t border-brand-border flex items-center justify-between text-xs text-brand-muted mt-3">
+                <div className="pt-3 border-t border-brand-border flex items-center justify-between text-xs text-brand-muted">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     <span>Plataforma Homologada Meta Tech Provider</span>
