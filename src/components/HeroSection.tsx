@@ -31,7 +31,7 @@ export const HeroSection: React.FC = () => {
             </h1>
 
             <p className="text-base sm:text-lg lg:text-xl text-brand-muted leading-relaxed max-w-2xl font-normal">
-              Transforme sua carteira atual em uma nova fonte de receita. Tenha um CRM com a marca da sua agência, sem desenvolver a infraestrutura, e acompanhe os resultados comerciais dos leads que você gera.
+              Tenha um CRM com a marca da sua agência, sem desenvolver a infraestrutura, e acompanhe os resultados comerciais dos leads que você gera.
             </p>
 
             {/* Microbenefits list */}
