@@ -1,22 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import { Badge } from './ui/Badge';
-import { Sparkles, Users, MessageSquare, TrendingUp, ShieldCheck } from 'lucide-react';
-
-const InteractiveGlobe = dynamic(
-  () => import('./InteractiveGlobe').then((mod) => mod.InteractiveGlobe),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="w-44 h-44 rounded-full border-2 border-dashed border-brand-primary/20 animate-spin duration-1000 opacity-60" />
-      </div>
-    ),
-  }
-);
+import { Users, ShieldCheck, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 interface ClientItem {
   name: string;
@@ -83,17 +70,31 @@ const CLIENTS: ClientItem[] = [
 ];
 
 export const SocialProofSection: React.FC = () => {
-  // Duplicate array for seamless infinite marquee loop
-  const carouselItems = [...CLIENTS, ...CLIENTS];
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % CLIENTS.length);
+  }, []);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + CLIENTS.length) % CLIENTS.length);
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(nextSlide, 4500);
+    return () => clearInterval(interval);
+  }, [isPaused, nextSlide]);
 
   return (
     <section className="py-20 sm:py-28 bg-white border-b border-brand-border/60 overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* PARTE SUPERIOR: GLOBO 3D + COPY EDITORIAL E INDICADORES OFICIAIS */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center mb-16 sm:mb-20">
+        {/* COMPOSIÇÃO EDITORIAL: COPY & MÉTRICAS (ESQUERDA) + DESTAQUE INDIVIDUAL DE CLIENTES (DIREITA) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           
-          {/* Coluna Esquerda: Copy Editorial e Indicadores */}
+          {/* Coluna Esquerda: Copy Editorial e Indicadores Oficiais */}
           <div className="lg:col-span-6 space-y-6 sm:space-y-8">
             <div className="inline-flex items-center">
               <Badge variant="mint" className="py-1 px-3.5 text-xs font-bold tracking-wider">
@@ -148,72 +149,105 @@ export const SocialProofSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Coluna Direita: Globo 3D Interativo */}
-          <div className="lg:col-span-6 relative flex flex-col items-center justify-center">
-            {/* Soft background glow */}
-            <div className="absolute inset-0 bg-brand-pale/50 rounded-full blur-3xl pointer-events-none -z-10" />
+          {/* Coluna Direita: Destaque Fotográfico dos Clientes com Crossfade Suave */}
+          <div className="lg:col-span-6 flex justify-center items-center relative">
+            {/* Glow sutil institucional de fundo */}
+            <div className="absolute inset-0 bg-brand-primary/5 rounded-full blur-3xl pointer-events-none -z-10" />
 
-            <div className="w-full h-[360px] sm:h-[440px] relative rounded-3xl bg-brand-offwhite/40 border border-brand-border/50 shadow-inner flex items-center justify-center overflow-hidden">
-              <InteractiveGlobe className="w-full h-full" />
-              
-              {/* Interaction Hint */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none">
-                <span className="text-[11px] font-medium text-brand-muted/80 bg-white/80 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-brand-border/40 shadow-2xs">
-                  Arraste para girar as conexões 3D
-                </span>
+            <div
+              className="relative w-full max-w-[460px] aspect-[4/4.8] sm:h-[490px] rounded-3xl overflow-hidden shadow-2xl border border-brand-border/80 bg-brand-offwhite group"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
+              {/* Slides dos Clientes com Crossfade Suave */}
+              {CLIENTS.map((client, idx) => {
+                const isActive = idx === currentIndex;
+                return (
+                  <div
+                    key={client.name}
+                    aria-hidden={!isActive}
+                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                      isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+                    }`}
+                  >
+                    {/* Imagem em Resolução Original e Nitidez Máxima (Sem recompressão) */}
+                    <Image
+                      src={client.image}
+                      alt={client.name}
+                      fill
+                      unoptimized
+                      priority={idx === 0}
+                      className="object-cover object-center"
+                    />
+
+                    {/* Gradiente para leitura impecável dos textos */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent pointer-events-none" />
+
+                    {/* Informações do Cliente */}
+                    <div className="absolute bottom-16 inset-x-0 p-6 sm:p-7 z-10 text-white">
+                      <div className="space-y-1">
+                        <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight drop-shadow-sm font-sans">
+                          {client.name}
+                        </h3>
+                        <p className="text-sm sm:text-base text-brand-mint font-semibold drop-shadow-xs">
+                          {client.role}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Tag Superior e Contador de Slides (Camada Fixa) */}
+              <div className="absolute top-4 inset-x-4 z-20 flex items-center justify-between pointer-events-none">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white text-xs font-semibold shadow-sm">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-brand-mint" />
+                  <span>Cliente Oficial dot.Sales</span>
+                </div>
+                <div className="px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-white/90 text-[11px] font-mono font-medium">
+                  {currentIndex + 1} / {CLIENTS.length}
+                </div>
+              </div>
+
+              {/* Barra de Navegação e Controles Interativos (Camada Fixa) */}
+              <div className="absolute bottom-0 inset-x-0 px-6 sm:px-7 pb-4 pt-2 z-20 flex items-center justify-between border-t border-white/15 bg-gradient-to-t from-black/80 to-transparent">
+                {/* Dots Indicadores com clique direto */}
+                <div className="flex items-center gap-1.5">
+                  {CLIENTS.map((_, dotIdx) => (
+                    <button
+                      key={dotIdx}
+                      onClick={() => setCurrentIndex(dotIdx)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        dotIdx === currentIndex
+                          ? 'w-6 bg-brand-primary shadow-xs'
+                          : 'w-1.5 bg-white/40 hover:bg-white/70'
+                      }`}
+                      aria-label={`Ver cliente ${dotIdx + 1}`}
+                    />
+                  ))}
+                </div>
+
+                {/* Botões Anterior e Próximo */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={prevSlide}
+                    className="p-2 rounded-full bg-white/10 hover:bg-white/25 active:scale-95 text-white border border-white/20 transition-all backdrop-blur-sm"
+                    aria-label="Cliente anterior"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    className="p-2 rounded-full bg-white/10 hover:bg-white/25 active:scale-95 text-white border border-white/20 transition-all backdrop-blur-sm"
+                    aria-label="Próximo cliente"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-        </div>
-
-        {/* PARTE INFERIOR: CARROSSEL INFINITO DE CLIENTES */}
-        <div className="pt-6">
-          <div className="text-center mb-8">
-            <span className="text-xs font-bold tracking-widest text-brand-muted uppercase">
-              Quem já vende com o dot.Sales
-            </span>
-          </div>
-
-          {/* Wrapper com fade lateral moderno */}
-          <div className="relative w-full overflow-hidden">
-            {/* Lateral Fades */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 md:w-36 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 md:w-36 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
-
-            {/* Marquee Track */}
-            <div className="flex gap-4 sm:gap-5 animate-marquee hover:[animation-play-state:paused] w-max py-3">
-              {carouselItems.map((client, idx) => (
-                <div
-                  key={idx}
-                  className="group relative flex-shrink-0 w-[200px] sm:w-[230px] md:w-[250px] h-[280px] sm:h-[320px] md:h-[340px] rounded-2xl overflow-hidden shadow-card border border-brand-border/80 bg-brand-offwhite transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-cardHover"
-                >
-                  {/* Photo */}
-                  <Image
-                    src={client.image}
-                    alt={client.name}
-                    fill
-                    sizes="(max-width: 640px) 200px, (max-width: 768px) 230px, 250px"
-                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                    priority={idx < 4}
-                  />
-
-                  {/* Dark gradient overlay on bottom for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none" />
-
-                  {/* Card Label info */}
-                  <div className="absolute bottom-0 inset-x-0 p-4 text-white">
-                    <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-snug drop-shadow-xs">
-                      {client.name}
-                    </h3>
-                    <p className="text-xs text-brand-mint font-medium mt-0.5 leading-tight opacity-95">
-                      {client.role}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
       </div>

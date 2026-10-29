@@ -101,7 +101,7 @@ export const QualificationForm: React.FC = () => {
     }
 
     const cleanPhone = formData.whatsapp.replace(/\D/g, '');
-    if (cleanPhone.length < 11 || !formData.whatsapp.includes('-')) {
+    if (cleanPhone.length < 10 || cleanPhone.length > 11 || !formData.whatsapp.includes('-')) {
       newErrors.whatsapp = 'Informe DDD e celular: (85) 99999-9999';
     }
 
@@ -266,7 +266,7 @@ export const QualificationForm: React.FC = () => {
 
       {/* ETAPA 1: Cadastro do Cliente (Nome, Instagram, WhatsApp, E-mail) */}
       {step === 1 && (
-        <form onSubmit={handleNextStep} className="space-y-4 animate-fade-up">
+        <form onSubmit={handleNextStep} noValidate className="space-y-4 animate-fade-up">
           <div>
             <h3 className="text-xl sm:text-2xl font-extrabold text-brand-dark tracking-tight-card leading-snug">
               Vamos preparar sua apresentação exclusiva.
@@ -334,8 +334,6 @@ export const QualificationForm: React.FC = () => {
                 type="tel"
                 inputMode="numeric"
                 placeholder="(85) 99999-9999"
-                pattern="\\([0-9]{2}\\) 9[0-9]{4}-[0-9]{4}"
-                title="Informe DDD e celular: (85) 99999-9999"
                 value={formData.whatsapp}
                 onChange={handlePhoneChange}
                 maxLength={15}
@@ -386,7 +384,7 @@ export const QualificationForm: React.FC = () => {
 
       {/* ETAPA 2: Perguntas Qualificatórias */}
       {step === 2 && (
-        <form onSubmit={handleSubmit} className="space-y-5 animate-fade-up">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5 animate-fade-up">
           <div className="flex items-center gap-2">
             <button
               type="button"
