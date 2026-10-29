@@ -22,7 +22,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-semibold rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active:scale-[0.98]';
+    'inline-flex items-center justify-center font-semibold rounded-full transition-all duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active:scale-[0.98] select-none motion-reduce:transition-none motion-reduce:hover:transform-none';
 
   const sizeStyles = {
     sm: 'text-xs px-4 py-2 gap-1.5',
@@ -32,13 +32,13 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      'bg-brand-primary text-white hover:bg-brand-primaryHover shadow-card hover:shadow-cardHover',
+      'bg-brand-primary text-white hover:bg-brand-primaryHover hover:-translate-y-0.5 hover:shadow-cardHover shadow-card active:translate-y-0',
     secondary:
-      'bg-white text-brand-dark hover:bg-brand-offwhite border border-brand-border shadow-card',
+      'bg-white text-brand-dark hover:bg-brand-offwhite hover:border-brand-primary/30 hover:-translate-y-0.5 border border-brand-border shadow-card active:translate-y-0',
     outline:
-      'bg-transparent text-brand-primary border border-brand-primary hover:bg-brand-pale',
+      'bg-transparent text-brand-primary border border-brand-primary hover:bg-brand-pale hover:-translate-y-0.5 active:translate-y-0',
     ghost:
-      'bg-transparent text-brand-dark hover:bg-brand-pale/50',
+      'bg-transparent text-brand-dark hover:bg-brand-pale/60 active:scale-[0.98]',
   };
 
   return (

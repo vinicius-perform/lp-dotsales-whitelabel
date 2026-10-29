@@ -1,10 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { Badge } from './ui/Badge';
-import { InteractiveGlobe } from './InteractiveGlobe';
-import { Sparkles, Users, MessageSquare, TrendingUp, ShieldCheck } from 'lucide-react';
+import { Users, ShieldCheck } from 'lucide-react';
+
+// Dynamic import with ssr: false to completely isolate Three.js from initial JS bundle
+const InteractiveGlobe = dynamic(
+  () => import('./InteractiveGlobe').then((mod) => mod.InteractiveGlobe),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+        <div className="w-20 h-20 rounded-full border-2 border-brand-mint/60 border-t-brand-primary animate-spin" />
+        <span className="text-xs text-brand-muted font-medium">Carregando mapa 3D...</span>
+      </div>
+    ),
+  }
+);
 
 interface ClientItem {
   name: string;
@@ -71,11 +85,36 @@ const CLIENTS: ClientItem[] = [
 ];
 
 export const SocialProofSection: React.FC = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [shouldLoadGlobe, setShouldLoadGlobe] = useState(false);
+
+  // Load Three.js only when the section approaches viewport (rootMargin: 300px)
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoadGlobe(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   // Duplicate array for seamless infinite marquee loop
   const carouselItems = [...CLIENTS, ...CLIENTS];
 
   return (
-    <section className="py-20 sm:py-28 bg-white border-b border-brand-border/60 overflow-hidden relative">
+    <section
+      ref={sectionRef}
+      className="py-20 sm:py-28 bg-white border-b border-brand-border/60 overflow-hidden relative"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* PARTE SUPERIOR: GLOBO 3D + COPY EDITORIAL E INDICADORES OFICIAIS */}
@@ -136,13 +175,20 @@ export const SocialProofSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Coluna Direita: Globo 3D Interativo */}
+          {/* Coluna Direita: Globo 3D Interativo (Lazy Mount) */}
           <div className="lg:col-span-6 relative flex flex-col items-center justify-center">
             {/* Soft background glow */}
             <div className="absolute inset-0 bg-brand-pale/50 rounded-full blur-3xl pointer-events-none -z-10" />
 
             <div className="w-full h-[360px] sm:h-[440px] relative rounded-3xl bg-brand-offwhite/40 border border-brand-border/50 shadow-inner flex items-center justify-center overflow-hidden">
-              <InteractiveGlobe className="w-full h-full" />
+              {shouldLoadGlobe ? (
+                <InteractiveGlobe className="w-full h-full" />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                  <div className="w-16 h-16 rounded-full border-2 border-brand-mint/60 border-t-brand-primary animate-spin" />
+                  <span className="text-xs text-brand-muted font-medium">Preparando globo interativo...</span>
+                </div>
+              )}
               
               {/* Interaction Hint */}
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none">
@@ -165,25 +211,25 @@ export const SocialProofSection: React.FC = () => {
 
           {/* Wrapper com fade lateral moderno */}
           <div className="relative w-full overflow-hidden">
-            {/* Lateral Fades */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 md:w-36 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 md:w-36 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
+            {/* Lateral Fades com gradiente multicamada */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 md:w-36 bg-gradient-to-r from-white via-white/85 to-transparent z-10" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 md:w-36 bg-gradient-to-l from-white via-white/85 to-transparent z-10" />
 
-            {/* Marquee Track */}
+            {/* Marquee Track (CSS Puro, Zero Bloqueio de Thread) */}
             <div className="flex gap-4 sm:gap-5 animate-marquee hover:[animation-play-state:paused] w-max py-3">
               {carouselItems.map((client, idx) => (
                 <div
                   key={idx}
-                  className="group relative flex-shrink-0 w-[200px] sm:w-[230px] md:w-[250px] h-[280px] sm:h-[320px] md:h-[340px] rounded-2xl overflow-hidden shadow-card border border-brand-border/80 bg-brand-offwhite transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-cardHover"
+                  className="group relative flex-shrink-0 w-[200px] sm:w-[230px] md:w-[250px] h-[280px] sm:h-[320px] md:h-[340px] rounded-2xl overflow-hidden shadow-card border border-brand-border/80 bg-brand-offwhite transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-cardHover will-change-transform"
                 >
-                  {/* Photo */}
+                  {/* Photo with lazy loading to protect First Contentful Paint */}
                   <Image
                     src={client.image}
                     alt={client.name}
                     fill
                     sizes="(max-width: 640px) 200px, (max-width: 768px) 230px, 250px"
                     className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                    priority={idx < 4}
+                    loading="lazy"
                   />
 
                   {/* Dark gradient overlay on bottom for text readability */}
